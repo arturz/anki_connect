@@ -8,21 +8,14 @@ defmodule AnkiConnect.Actions.Note do
   import AnkiConnect.Client
   import AnkiConnect.Utils.MapUtils
 
-  alias AnkiConnect.Specs.FileSpec
+  alias AnkiConnect.Specs.NoteSpec
 
   @doc """
   Creates a note using the given deck and model, with the provided field values and tags.
 
   Returns the identifier of the created note created on success, and error on failure.
 
-  Anki-Connect can download audio, video, and picture files and embed them in newly created notes. The corresponding `audio`, `video`, and `picture` note members are optional and can be omitted. If you choose to include any of them, they should contain a single object or an array of objects with the mandatory `filename` field and one of `data`, `path` or `url`. Refer to the documentation of `store_media_file` for an explanation of these fields. The `skip_hash` field can be optionally provided to skip the inclusion of files with an MD5 hash that matches the provided value. This is useful for avoiding the saving of error pages and stub files. The `fields` member is a list of fields that should play audio or video, or show a picture when the card is displayed in Anki. The `allow_duplicate` member inside options group can be set to true to enable adding duplicate cards. Normally duplicate cards can not be added and trigger exception.
-
-  The `duplicate_scope` member inside `options` can be used to specify the scope for which duplicates are checked. A value of `"deck"` will only check for duplicates in the target deck; any other value will check the entire collection.
-
-  The `duplicate_scope_options` map can be used to specify some additional settings:
-  - `duplicate_scope_options.deck_name` will specify which deck to use for checking duplicates in. If `nil`, the target deck will be used.
-  - `duplicate_scope_options.check_children` will change whether or not duplicate cards are checked in child decks. The default value is `false`.
-  - `duplicate_scope_options.check_all_models` specifies whether duplicate checks are performed across all note types. The default value is `false`.
+  Refer to `AnkiConnect.Specs.NoteSpec` for information about the `note` key.
 
   ### Sample param:
   ```
@@ -72,31 +65,7 @@ defmodule AnkiConnect.Actions.Note do
   ```
   """
   @spec add_note(%{
-          note: %{
-            deck_name: String.t(),
-            model_name: String.t(),
-            fields: %{
-              Front: String.t(),
-              Back: String.t()
-            },
-            options:
-              %{
-                allow_duplicate: boolean() | nil,
-                duplicate_scope: String.t() | nil,
-                duplicate_scope_options:
-                  %{
-                    deck_name: String.t() | nil,
-                    check_children: boolean() | nil,
-                    check_all_models: boolean() | nil
-                  }
-                  | nil
-              }
-              | nil,
-            tags: [String.t()] | nil,
-            audio: [FileSpec.t()] | nil,
-            video: [FileSpec.t()] | nil,
-            picture: [FileSpec.t()] | nil
-          }
+          note: NoteSpec.t()
         }) :: {:ok, integer()} | {:error, any()}
   def add_note(%{note: %{deck_name: deck_name, model_name: model_name, fields: fields} = note}) do
     options = Map.get(note, :options)
@@ -125,7 +94,9 @@ defmodule AnkiConnect.Actions.Note do
   @doc """
   Creates multiple notes using the given deck and model, with the provided field values and tags.
 
-  Returns an array of identifiers of the created notes (notes that could not be created will have a `nil` identifier). Please see the documentation for `add_note` for an explanation of objects in the `notes` array.
+  Returns an array of identifiers of the created notes (notes that could not be created will have a `nil` identifier).
+
+  Refer to `AnkiConnect.Specs.NoteSpec` for information about the `notes` list elements.
 
   ### Sample param:
   ```
@@ -181,6 +152,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, [1496198395707, nil]}
   ```
   """
+  @spec add_notes(%{notes: [NoteSpec.t()]}) :: {:ok, [integer() | nil]} | {:error, any()}
   def add_notes(%{notes: notes}) do
     api("addNotes", %{notes: notes})
   end
@@ -212,6 +184,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, [true]}
   ```
   """
+  @spec can_add_notes(%{notes: [NoteSpec.t()]}) :: {:ok, [boolean()]} | {:error, any()}
   def can_add_notes(%{notes: notes}) do
     api("canAddNotes", %{notes: notes})
   end
@@ -249,6 +222,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, nil}
   ```
   """
+  @spec update_note_fields(%{note: NoteSpec.t()}) :: {:ok, nil} | {:error, any()}
   def update_note_fields(%{note: note}) do
     api("updateNoteFields", %{note: note})
   end
@@ -284,6 +258,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, nil}
   ```
   """
+  @spec update_note(%{note: NoteSpec.t()}) :: {:ok, nil} | {:error, any()}
   def update_note(%{note: note}) do
     api("updateNote", %{note: note})
   end
@@ -306,6 +281,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, nil}
   ```
   """
+  @spec update_note_tags(%{note: integer(), tags: [String.t()]}) :: {:ok, nil} | {:error, any()}
   def update_note_tags(%{note: note, tags: tags}) do
     api("updateNoteTags", %{note: note, tags: tags})
   end
@@ -325,6 +301,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, ["european-languages"]}
   ```
   """
+  @spec get_note_tags(%{note: integer()}) :: {:ok, [String.t()]} | {:error, any()}
   def get_note_tags(%{note: note}) do
     api("getNoteTags", %{note: note})
   end
@@ -345,6 +322,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, nil}
   ```
   """
+  @spec add_tags(%{notes: [integer()], tags: String.t()}) :: {:ok, nil} | {:error, any()}
   def add_tags(%{notes: notes, tags: tags}) do
     api("addTags", %{notes: notes, tags: tags})
   end
@@ -365,6 +343,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, nil}
   ```
   """
+  @spec remove_tags(%{notes: [integer()], tags: String.t()}) :: {:ok, nil} | {:error, any()}
   def remove_tags(%{notes: notes, tags: tags}) do
     api("removeTags", %{notes: notes, tags: tags})
   end
@@ -377,6 +356,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, ["european-languages", "idioms"]}
   ```
   """
+  @spec get_tags() :: {:ok, [String.t()]} | {:error, any()}
   def get_tags do
     api("getTags")
   end
@@ -384,6 +364,7 @@ defmodule AnkiConnect.Actions.Note do
   @doc """
   Clears all the unused tags in the notes for the current user.
   """
+  @spec clear_unused_tags() :: {:ok, nil} | {:error, any()}
   def clear_unused_tags do
     api("clearUnusedTags")
   end
@@ -400,6 +381,11 @@ defmodule AnkiConnect.Actions.Note do
   }
   ```
   """
+  @spec replace_tags(%{
+          notes: [integer()],
+          tag_to_replace: String.t(),
+          replace_with_tag: String.t()
+        }) :: {:ok, nil} | {:error, any()}
   def replace_tags(%{
         notes: notes,
         tag_to_replace: tag_to_replace,
@@ -423,6 +409,8 @@ defmodule AnkiConnect.Actions.Note do
   }
   ```
   """
+  @spec replace_tags_in_all_notes(%{tag_to_replace: String.t(), replace_with_tag: String.t()}) ::
+          {:ok, nil} | {:error, any()}
   def replace_tags_in_all_notes(%{
         tag_to_replace: tag_to_replace,
         replace_with_tag: replace_with_tag
@@ -450,6 +438,7 @@ defmodule AnkiConnect.Actions.Note do
   {:ok, [1494723142483, 1494703460437, 1494703479525]}
   ```
   """
+  @spec find_notes(%{query: String.t()}) :: {:ok, [integer()]} | {:error, any()}
   def find_notes(%{query: query}) do
     api("findNotes", %{query: query})
   end
@@ -479,6 +468,7 @@ defmodule AnkiConnect.Actions.Note do
   ]
   ```
   """
+  @spec notes_info(%{notes: [integer()]}) :: {:ok, [Map.t()]} | {:error, any()}
   def notes_info(%{notes: notes}) do
     api("notesInfo", %{notes: notes})
   end
@@ -495,6 +485,7 @@ defmodule AnkiConnect.Actions.Note do
   }
   ```
   """
+  @spec delete_notes(%{notes: [integer()]}) :: {:ok, nil} | {:error, any()}
   def delete_notes(%{notes: notes}) do
     api("deleteNotes", %{notes: notes})
   end
@@ -502,6 +493,7 @@ defmodule AnkiConnect.Actions.Note do
   @doc """
   Removes all the empty notes for the current user.
   """
+  @spec remove_empty_notes(%{notes: [integer()]}) :: {:ok, nil} | {:error, any()}
   def remove_empty_notes(%{notes: notes}) do
     api("removeEmptyNotes", %{notes: notes})
   end
