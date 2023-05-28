@@ -19,7 +19,7 @@ To use AnkiConnect in your Elixir project, simply add it as a dependency in your
 ```elixir
 defp deps do
   [
-    {:anki_connect, "~> 0.1"}
+    {:anki_connect, "~> 0.1.1"}
   ]
 end
 ```
