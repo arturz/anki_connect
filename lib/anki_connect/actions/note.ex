@@ -158,7 +158,7 @@ defmodule AnkiConnect.Actions.Note do
   end
 
   @doc """
-  Accepts an array of objects which define parameters for candidate notes (see addNote) and returns an array of booleans indicating whether or not the parameters at the corresponding index could be used to create a new note.
+  Accepts an array of objects which define parameters for candidate notes (see `AnkiConnect.Actions.Note.add_note/1`) and returns an array of booleans indicating whether or not the parameters at the corresponding index could be used to create a new note.
 
   ### Sample param:
   ```
@@ -468,7 +468,7 @@ defmodule AnkiConnect.Actions.Note do
   ]
   ```
   """
-  @spec notes_info(%{notes: [integer()]}) :: {:ok, [Map.t()]} | {:error, any()}
+  @spec notes_info(%{notes: [integer()]}) :: {:ok, [map()]} | {:error, any()}
   def notes_info(%{notes: notes}) do
     api("notesInfo", %{notes: notes})
   end

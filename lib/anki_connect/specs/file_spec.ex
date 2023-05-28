@@ -1,5 +1,5 @@
 defmodule AnkiConnect.Specs.FileSpec do
-  @doc """
+  @moduledoc """
   Includes type specs for file.
   """
 

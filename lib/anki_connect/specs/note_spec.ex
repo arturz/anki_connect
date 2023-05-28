@@ -1,5 +1,5 @@
 defmodule AnkiConnect.Specs.NoteSpec do
-  @doc """
+  @moduledoc """
   Includes type specs for note.
   """
 
