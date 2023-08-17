@@ -24,3 +24,6 @@ anki_connect-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Mac OS Finder metadata.
+.DS_Store
